@@ -122,7 +122,7 @@ export default function TaskItem({ task, onUpdate, currentUser }) {
             </div>
 
             {/* Comments Section */}
-            <div className="pl-8 border-t pt-4" style={{ borderColor: '#ffe8d1' }}>
+            <div className="border-t pt-4" style={{ borderColor: '#ffe8d1' }}>
               <CommentSection taskId={task.id} currentUser={currentUser} />
             </div>
           </div>
