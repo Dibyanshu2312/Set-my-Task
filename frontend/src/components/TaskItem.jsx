@@ -127,7 +127,8 @@ export default function TaskItem({ task, onUpdate, currentUser }) {
             </div>
           </div>
         </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+        </AccordionItem>
+      </Accordion>
+    </div>
   );
 }
