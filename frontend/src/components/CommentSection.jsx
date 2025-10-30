@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API } from '@/App';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { API } from '../App';
+import { Button } from './ui/button';
+import { Textarea } from './ui/textarea';
 import { toast } from 'sonner';
 import { Send, Trash2, MessageSquare } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';

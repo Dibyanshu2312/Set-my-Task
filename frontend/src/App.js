@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import axios from 'axios';
-import '@/App.css';
-import AuthPage from '@/components/AuthPage';
-import Dashboard from '@/components/Dashboard';
-import { Toaster } from '@/components/ui/sonner';
+import './App.css';
+import AuthPage from './components/AuthPage';
+import Dashboard from './components/Dashboard';
+import { Toaster } from './components/ui/sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 export const API = `${BACKEND_URL}/api`;

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API } from '@/App';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { API } from '../App';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { TrendingUp, Users, CheckCircle2, Star, Activity } from 'lucide-react';
 
 export default function StatsPage() {
