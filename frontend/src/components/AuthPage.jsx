@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function AuthPage({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,6 +17,7 @@ export default function AuthPage({ onLogin }) {
     password: ''
   });
   const [loading, setLoading] = useState(false);
+  const [errorDialog, setErrorDialog] = useState({ open: false, title: '', message: '' });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,7 +33,17 @@ export default function AuthPage({ onLogin }) {
       onLogin(response.data.access_token, response.data.user);
       toast.success(isLogin ? 'Welcome back!' : 'Account created successfully!');
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Authentication failed');
+      const errorMessage = error.response?.data?.detail || 'Authentication failed';
+      
+      if (isLogin && (errorMessage.includes('Invalid') || errorMessage.includes('not found'))) {
+        setErrorDialog({
+          open: true,
+          title: 'Login Failed',
+          message: 'Invalid email or password. Please check your credentials and try again, or sign up for a new account.'
+        });
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -140,6 +152,30 @@ export default function AuthPage({ onLogin }) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Error Dialog */}
+      <AlertDialog open={errorDialog.open} onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}>
+        <AlertDialogContent style={{ background: '#ffffff' }}>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <AlertCircle className="w-8 h-8 text-orange-600" />
+              <AlertDialogTitle style={{ color: '#2c1810' }}>{errorDialog.title}</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription style={{ color: '#5d4037' }} className="text-base">
+              {errorDialog.message}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              data-testid="close-error-dialog"
+              onClick={() => setErrorDialog({ open: false, title: '', message: '' })}
+              style={{ background: '#ff6b35', color: '#ffffff' }}
+            >
+              Try Again
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

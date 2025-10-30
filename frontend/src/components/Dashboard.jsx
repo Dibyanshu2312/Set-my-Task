@@ -6,9 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { LogOut, Plus, RefreshCw } from 'lucide-react';
+import { LogOut, Plus, RefreshCw, BarChart3, ListTodo } from 'lucide-react';
 import ClientCard from './ClientCard';
+import StatsPage from './StatsPage';
 
 export default function Dashboard({ user, onLogout }) {
   const [clients, setClients] = useState([]);
@@ -16,6 +18,7 @@ export default function Dashboard({ user, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newClient, setNewClient] = useState({ name: '', description: '' });
+  const [activeTab, setActiveTab] = useState('tasks');
 
   useEffect(() => {
     fetchData();
@@ -109,93 +112,120 @@ export default function Dashboard({ user, onLogout }) {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold" style={{ color: '#2c1810' }}>
-            Clients ({clients.length})
-          </h2>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button
-                data-testid="add-client-button"
-                className="text-white font-semibold"
-                style={{ background: '#ff6b35' }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Client
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md" style={{ background: '#ffffff' }}>
-              <DialogHeader>
-                <DialogTitle style={{ color: '#2c1810' }}>Create New Client</DialogTitle>
-                <DialogDescription style={{ color: '#5d4037' }}>
-                  Add a new client to your dashboard. They will get 11 predefined tasks automatically.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleCreateClient} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="client-name" style={{ color: '#2c1810' }}>Client Name</Label>
-                  <Input
-                    id="client-name"
-                    data-testid="client-name-input"
-                    placeholder="Enter client name"
-                    value={newClient.name}
-                    onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
-                    required
-                    className="border-orange-200 focus:border-orange-500"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="client-description" style={{ color: '#2c1810' }}>Description (Optional)</Label>
-                  <Textarea
-                    id="client-description"
-                    data-testid="client-description-input"
-                    placeholder="Enter client description"
-                    value={newClient.description}
-                    onChange={(e) => setNewClient({ ...newClient, description: e.target.value })}
-                    className="border-orange-200 focus:border-orange-500"
-                    rows={3}
-                  />
-                </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-6" style={{ background: '#ffffff' }}>
+            <TabsTrigger 
+              value="tasks" 
+              data-testid="tasks-tab"
+              className="data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700"
+            >
+              <ListTodo className="w-4 h-4 mr-2" />
+              Task Management
+            </TabsTrigger>
+            <TabsTrigger 
+              value="stats" 
+              data-testid="stats-tab"
+              className="data-[state=active]:bg-orange-100 data-[state=active]:text-orange-700"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Analytics Dashboard
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="tasks">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold" style={{ color: '#2c1810' }}>
+                Clients ({clients.length})
+              </h2>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    data-testid="add-client-button"
+                    className="text-white font-semibold"
+                    style={{ background: '#ff6b35' }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Client
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md" style={{ background: '#ffffff' }}>
+                  <DialogHeader>
+                    <DialogTitle style={{ color: '#2c1810' }}>Create New Client</DialogTitle>
+                    <DialogDescription style={{ color: '#5d4037' }}>
+                      Add a new client to your dashboard. They will get 11 predefined tasks automatically.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateClient} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="client-name" style={{ color: '#2c1810' }}>Client Name</Label>
+                      <Input
+                        id="client-name"
+                        data-testid="client-name-input"
+                        placeholder="Enter client name"
+                        value={newClient.name}
+                        onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
+                        required
+                        className="border-orange-200 focus:border-orange-500"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="client-description" style={{ color: '#2c1810' }}>Description (Optional)</Label>
+                      <Textarea
+                        id="client-description"
+                        data-testid="client-description-input"
+                        placeholder="Enter client description"
+                        value={newClient.description}
+                        onChange={(e) => setNewClient({ ...newClient, description: e.target.value })}
+                        className="border-orange-200 focus:border-orange-500"
+                        rows={3}
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      data-testid="create-client-submit"
+                      className="w-full text-white font-semibold"
+                      style={{ background: '#ff6b35' }}
+                    >
+                      Create Client
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {clients.length === 0 ? (
+              <div className="text-center py-16">
+                <p className="text-lg mb-4" style={{ color: '#5d4037' }}>No clients yet. Create your first client to get started!</p>
                 <Button
-                  type="submit"
-                  data-testid="create-client-submit"
-                  className="w-full text-white font-semibold"
+                  onClick={() => setIsCreateDialogOpen(true)}
+                  data-testid="empty-state-add-client"
+                  className="text-white font-semibold"
                   style={{ background: '#ff6b35' }}
                 >
-                  Create Client
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Your First Client
                 </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
+              </div>
+            ) : (
+              <div className="grid gap-6">
+                {clients.map((client) => (
+                  <ClientCard
+                    key={client.id}
+                    client={client}
+                    tasks={tasks[client.id] || []}
+                    onDelete={handleDeleteClient}
+                    onUpdate={fetchData}
+                    currentUser={user}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
-        {clients.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-lg mb-4" style={{ color: '#5d4037' }}>No clients yet. Create your first client to get started!</p>
-            <Button
-              onClick={() => setIsCreateDialogOpen(true)}
-              data-testid="empty-state-add-client"
-              className="text-white font-semibold"
-              style={{ background: '#ff6b35' }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Your First Client
-            </Button>
-          </div>
-        ) : (
-          <div className="grid gap-6">
-            {clients.map((client) => (
-              <ClientCard
-                key={client.id}
-                client={client}
-                tasks={tasks[client.id] || []}
-                onDelete={handleDeleteClient}
-                onUpdate={fetchData}
-                currentUser={user}
-              />
-            ))}
-          </div>
-        )}
+          <TabsContent value="stats">
+            <StatsPage />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
