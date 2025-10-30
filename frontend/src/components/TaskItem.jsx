@@ -76,15 +76,15 @@ export default function TaskItem({ task, onUpdate, currentUser }) {
             <AccordionTrigger className="hover:no-underline p-0 ml-2" data-testid={`expand-task-${task.id}`}>
             </AccordionTrigger>
           </div>
-        <AccordionContent>
-          <div className="space-y-4 pt-2">
-            {task.description && (
-              <div className="pl-8">
-                <p className="text-sm" style={{ color: '#5d4037' }} data-testid={`task-description-${task.id}`}>
-                  {task.description}
-                </p>
-              </div>
-            )}
+          <AccordionContent>
+            <div className="space-y-4 px-4 pb-2">
+              {task.description && (
+                <div>
+                  <p className="text-sm" style={{ color: '#5d4037' }} data-testid={`task-description-${task.id}`}>
+                    {task.description}
+                  </p>
+                </div>
+              )}
             
             <div className="flex items-center gap-2 pl-8">
               <EditTaskDialog task={task} onUpdate={onUpdate} />
