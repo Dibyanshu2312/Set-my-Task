@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API } from '@/App';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, Users, CheckCircle2, Star, Calendar, FileText } from 'lucide-react';
-import { LineChart, Line, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import { TrendingUp, Users, CheckCircle2, Star, Activity } from 'lucide-react';
 
 export default function StatsPage() {
   const [stats, setStats] = useState({
@@ -12,7 +11,7 @@ export default function StatsPage() {
     completedTasks: 0,
     pendingTasks: 0,
     completionRate: 0,
-    recentActivity: []
+    clientsData: []
   });
 
   useEffect(() => {
@@ -26,22 +25,21 @@ export default function StatsPage() {
 
       let totalTasks = 0;
       let completedTasks = 0;
-      const recentActivity = [];
+      const clientsData = [];
 
       for (const client of clients) {
         const tasksResponse = await axios.get(`${API}/tasks/${client.id}`);
         const tasks = tasksResponse.data;
-        totalTasks += tasks.length;
-        completedTasks += tasks.filter(t => t.status === 'completed').length;
+        const clientCompleted = tasks.filter(t => t.status === 'completed').length;
         
-        // Add recent tasks to activity
-        tasks.slice(0, 5).forEach(task => {
-          recentActivity.push({
-            client: client.name,
-            task: task.title,
-            status: task.status,
-            date: new Date(task.created_at)
-          });
+        totalTasks += tasks.length;
+        completedTasks += clientCompleted;
+        
+        clientsData.push({
+          name: client.name,
+          total: tasks.length,
+          completed: clientCompleted,
+          percentage: tasks.length > 0 ? Math.round((clientCompleted / tasks.length) * 100) : 0
         });
       }
 
@@ -54,185 +52,189 @@ export default function StatsPage() {
         completedTasks,
         pendingTasks,
         completionRate,
-        recentActivity: recentActivity.sort((a, b) => b.date - a.date).slice(0, 10)
+        clientsData: clientsData.sort((a, b) => b.percentage - a.percentage)
       });
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
   };
 
-  // Mock data for charts
-  const weeklyData = [
-    { name: 'Mon', completed: 12 },
-    { name: 'Tue', completed: 19 },
-    { name: 'Wed', completed: 15 },
-    { name: 'Thu', completed: 25 },
-    { name: 'Fri', completed: 22 },
-    { name: 'Sat', completed: 18 },
-    { name: 'Sun', completed: 10 }
-  ];
-
-  const statusData = [
-    { name: 'Completed', value: stats.completedTasks, color: '#66bb6a' },
-    { name: 'Pending', value: stats.pendingTasks, color: '#ff6b35' }
-  ];
-
   return (
     <div className="space-y-6">
-      {/* Top Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center justify-between" style={{ color: '#5d4037' }}>
-              <span>Total Clients</span>
-              <Users className="w-4 h-4 text-orange-600" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" style={{ color: '#2c1810' }}>{stats.totalClients}</div>
-            <p className="text-xs mt-1" style={{ color: '#8d6e63' }}>Active clients in system</p>
+      {/* Top Stats Cards - Inspired by reference but customized */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-2 relative overflow-hidden" style={{ borderColor: '#ffe8d1', background: 'linear-gradient(135deg, #fff5e6 0%, #ffffff 100%)' }}>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium" style={{ color: '#8d6e63' }}>Total Clients</span>
+              <Users className="w-5 h-5 text-orange-600 opacity-60" />
+            </div>
+            <div className="text-4xl font-bold mb-1" style={{ color: '#2c1810' }}>{stats.totalClients}</div>
+            <div className="flex items-center gap-1 text-xs" style={{ color: '#ff6b35' }}>
+              <TrendingUp className="w-3 h-3" />
+              <span>Active</span>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center justify-between" style={{ color: '#5d4037' }}>
-              <span>Total Tasks</span>
-              <FileText className="w-4 h-4 text-orange-600" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" style={{ color: '#2c1810' }}>{stats.totalTasks}</div>
-            <p className="text-xs mt-1" style={{ color: '#8d6e63' }}>Tasks created overall</p>
+        <Card className="border-2 relative overflow-hidden" style={{ borderColor: '#ffe8d1', background: 'linear-gradient(135deg, #fff0e6 0%, #ffffff 100%)' }}>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium" style={{ color: '#8d6e63' }}>Total Tasks</span>
+              <Activity className="w-5 h-5 text-orange-600 opacity-60" />
+            </div>
+            <div className="text-4xl font-bold mb-1" style={{ color: '#2c1810' }}>{stats.totalTasks}</div>
+            <div className="flex items-center gap-1 text-xs" style={{ color: '#ff6b35' }}>
+              <TrendingUp className="w-3 h-3" />
+              <span>All time</span>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center justify-between" style={{ color: '#5d4037' }}>
-              <span>Completed</span>
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{stats.completedTasks}</div>
-            <p className="text-xs mt-1" style={{ color: '#8d6e63' }}>Tasks finished</p>
+        <Card className="border-2 relative overflow-hidden" style={{ borderColor: '#e8f5e9', background: 'linear-gradient(135deg, #f1f8f4 0%, #ffffff 100%)' }}>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium" style={{ color: '#8d6e63' }}>Completed</span>
+              <CheckCircle2 className="w-5 h-5 text-green-600 opacity-60" />
+            </div>
+            <div className="text-4xl font-bold mb-1 text-green-600">{stats.completedTasks}</div>
+            <div className="flex items-center gap-1 text-xs text-green-600">
+              <TrendingUp className="w-3 h-3" />
+              <span>Finished</span>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center justify-between" style={{ color: '#5d4037' }}>
-              <span>Completion Rate</span>
-              <Star className="w-4 h-4 text-orange-600" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" style={{ color: '#ff6b35' }}>{stats.completionRate}%</div>
-            <p className="text-xs mt-1" style={{ color: '#8d6e63' }}>Overall progress</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Weekly Completion Chart */}
-        <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2" style={{ color: '#2c1810' }}>
-              <TrendingUp className="w-5 h-5 text-orange-600" />
-              Weekly Task Completion
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={weeklyData}>
-                <XAxis dataKey="name" stroke="#8d6e63" />
-                <YAxis stroke="#8d6e63" />
-                <Tooltip 
-                  contentStyle={{ background: '#ffffff', border: '2px solid #ffe8d1', borderRadius: '8px' }}
-                />
-                <Line type="monotone" dataKey="completed" stroke="#ff6b35" strokeWidth={3} dot={{ fill: '#ff6b35', r: 5 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Task Status Distribution */}
-        <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
-          <CardHeader>
-            <CardTitle style={{ color: '#2c1810' }}>Task Status Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <ResponsiveContainer width="60%" height={250}>
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="space-y-3">
-                {statusData.map((item, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded" style={{ background: item.color }}></div>
-                    <div>
-                      <p className="text-sm font-semibold" style={{ color: '#2c1810' }}>{item.name}</p>
-                      <p className="text-xs" style={{ color: '#8d6e63' }}>{item.value} tasks</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        <Card className="border-2 relative overflow-hidden" style={{ borderColor: '#ffe8d1', background: 'linear-gradient(135deg, #fff3e0 0%, #ffffff 100%)' }}>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium" style={{ color: '#8d6e63' }}>Success Rate</span>
+              <Star className="w-5 h-5 text-orange-600 opacity-60" />
+            </div>
+            <div className="text-4xl font-bold mb-1" style={{ color: '#ff6b35' }}>{stats.completionRate}%</div>
+            <div className="flex items-center gap-1 text-xs" style={{ color: '#ff6b35' }}>
+              <TrendingUp className="w-3 h-3" />
+              <span>Overall</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Activity */}
+      {/* Client Performance Overview */}
       <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2" style={{ color: '#2c1810' }}>
-            <Calendar className="w-5 h-5 text-orange-600" />
-            Recent Activity
-          </CardTitle>
+          <CardTitle className="text-xl" style={{ color: '#2c1810' }}>Client Performance Overview</CardTitle>
+          <p className="text-sm" style={{ color: '#8d6e63' }}>Task completion rate by client</p>
         </CardHeader>
         <CardContent>
-          {stats.recentActivity.length === 0 ? (
-            <p className="text-center py-8" style={{ color: '#8d6e63' }}>No recent activity</p>
+          {stats.clientsData.length === 0 ? (
+            <div className="text-center py-12">
+              <p style={{ color: '#8d6e63' }}>No client data available</p>
+            </div>
           ) : (
-            <div className="space-y-3">
-              {stats.recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg" style={{ background: '#fffbf7', border: '1px solid #ffe8d1' }}>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${activity.status === 'completed' ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+            <div className="space-y-4">
+              {stats.clientsData.map((client, index) => (
+                <div key={index} className="p-4 rounded-lg" style={{ background: '#fffbf7', border: '1px solid #ffe8d1' }}>
+                  <div className="flex items-center justify-between mb-2">
                     <div>
-                      <p className="font-medium text-sm" style={{ color: '#2c1810' }}>{activity.task}</p>
-                      <p className="text-xs" style={{ color: '#8d6e63' }}>{activity.client}</p>
+                      <h3 className="font-semibold" style={{ color: '#2c1810' }}>{client.name}</h3>
+                      <p className="text-sm" style={{ color: '#8d6e63' }}>
+                        {client.completed} of {client.total} tasks completed
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold" style={{ color: client.percentage >= 70 ? '#66bb6a' : client.percentage >= 40 ? '#ff6b35' : '#ef5350' }}>
+                        {client.percentage}%
+                      </div>
                     </div>
                   </div>
-                  <span className="text-xs px-3 py-1 rounded-full" style={{ 
-                    background: activity.status === 'completed' ? '#e8f5e9' : '#fff3e0',
-                    color: activity.status === 'completed' ? '#2e7d32' : '#d84315'
-                  }}>
-                    {activity.status}
-                  </span>
+                  <div className="w-full h-3 rounded-full overflow-hidden" style={{ background: '#ffe8d1' }}>
+                    <div 
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ 
+                        width: `${client.percentage}%`,
+                        background: client.percentage >= 70 ? 'linear-gradient(90deg, #66bb6a, #81c784)' : 
+                                   client.percentage >= 40 ? 'linear-gradient(90deg, #ff6b35, #ff8a50)' : 
+                                   'linear-gradient(90deg, #ef5350, #e57373)'
+                      }}
+                    ></div>
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
+          <CardHeader>
+            <CardTitle style={{ color: '#2c1810' }}>Task Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: '#e8f5e9' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-green-600 flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm" style={{ color: '#2e7d32' }}>Completed Tasks</p>
+                    <p className="text-2xl font-bold" style={{ color: '#2c1810' }}>{stats.completedTasks}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-lg" style={{ background: '#fff3e0' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-orange-600 flex items-center justify-center">
+                    <Activity className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm" style={{ color: '#d84315' }}>Pending Tasks</p>
+                    <p className="text-2xl font-bold" style={{ color: '#2c1810' }}>{stats.pendingTasks}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2" style={{ borderColor: '#ffe8d1', background: '#ffffff' }}>
+          <CardHeader>
+            <CardTitle style={{ color: '#2c1810' }}>Performance Insights</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium" style={{ color: '#8d6e63' }}>Average Completion Rate</span>
+                  <span className="text-lg font-bold" style={{ color: '#ff6b35' }}>{stats.completionRate}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: '#ffe8d1' }}>
+                  <div 
+                    className="h-full rounded-full"
+                    style={{ width: `${stats.completionRate}%`, background: 'linear-gradient(90deg, #ff6b35, #ff8a50)' }}
+                  ></div>
+                </div>
+              </div>
+              
+              <div className="pt-4 border-t" style={{ borderColor: '#ffe8d1' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm" style={{ color: '#8d6e63' }}>Tasks per Client</span>
+                  <span className="font-bold" style={{ color: '#2c1810' }}>
+                    {stats.totalClients > 0 ? Math.round(stats.totalTasks / stats.totalClients) : 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm" style={{ color: '#8d6e63' }}>Active Clients</span>
+                  <span className="font-bold" style={{ color: '#2c1810' }}>{stats.totalClients}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
