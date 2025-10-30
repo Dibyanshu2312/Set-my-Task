@@ -86,7 +86,7 @@ export default function TaskItem({ task, onUpdate, currentUser }) {
                 </div>
               )}
             
-            <div className="flex items-center gap-2 pl-8">
+            <div className="flex items-center gap-2">
               <EditTaskDialog task={task} onUpdate={onUpdate} />
               <AlertDialog>
                 <AlertDialogTrigger asChild>
