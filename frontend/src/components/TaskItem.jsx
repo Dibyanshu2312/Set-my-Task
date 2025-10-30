@@ -39,24 +39,22 @@ export default function TaskItem({ task, onUpdate, currentUser }) {
   };
 
   return (
-    <Accordion type="single" collapsible className="w-full">
-      <AccordionItem
-        value={task.id}
-        className="border-2 rounded-lg px-4"
-        style={{ borderColor: task.status === 'completed' ? '#a5d6a7' : '#ffe8d1', background: task.status === 'completed' ? '#f1f8f4' : '#fffbf7' }}
-        data-testid={`task-item-${task.id}`}
-      >
-        <AccordionTrigger className="hover:no-underline">
-          <div className="flex items-center gap-3 w-full">
+    <div
+      className="border-2 rounded-lg mb-2"
+      style={{ borderColor: task.status === 'completed' ? '#a5d6a7' : '#ffe8d1', background: task.status === 'completed' ? '#f1f8f4' : '#fffbf7' }}
+      data-testid={`task-item-${task.id}`}
+    >
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value={task.id} className="border-0">
+          <div className="flex items-center gap-3 px-4 py-3">
             <Checkbox
               checked={task.status === 'completed'}
               onCheckedChange={handleToggleStatus}
               disabled={isUpdating}
               data-testid={`task-checkbox-${task.id}`}
               className="border-orange-400 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-              onClick={(e) => e.stopPropagation()}
             />
-            <div className="flex-1 text-left">
+            <div className="flex-1">
               <p
                 className={`font-medium ${task.status === 'completed' ? 'line-through' : ''}`}
                 style={{ color: task.status === 'completed' ? '#5d4037' : '#2c1810' }}
@@ -75,8 +73,9 @@ export default function TaskItem({ task, onUpdate, currentUser }) {
             >
               {task.status === 'completed' ? 'Completed' : 'Pending'}
             </Badge>
+            <AccordionTrigger className="hover:no-underline p-0 ml-2" data-testid={`expand-task-${task.id}`}>
+            </AccordionTrigger>
           </div>
-        </AccordionTrigger>
         <AccordionContent>
           <div className="space-y-4 pt-2">
             {task.description && (
